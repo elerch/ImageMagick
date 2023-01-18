@@ -139,12 +139,21 @@ pub fn build(b: *std.build.Builder) void {
     lib.install();
 
     // Needs commit 37424fd (Zig 0.10 + 1329 commits)
+    // 1329 was broken though. 1350 (bbab4beda) seems to work
+    // NOTE: Would much rather have an "include extensions" option here
+    // than playing whack-a-mole
     lib.installHeadersDirectoryOptions(.{
         .source_dir = "MagickCore",
         .install_dir = .header,
         .install_subdir = "MagickCore",
-        .exclude_extenstions = &.{
+        .exclude_extensions = &.{
             ".c",
+            ".in",
+            ".h_vms",
+            ".1",
+            ".com",
+            ".map",
+            ".am",
         },
     });
     lib.installHeadersDirectory("MagickWand", "MagickWand");
