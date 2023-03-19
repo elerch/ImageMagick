@@ -1,15 +1,27 @@
 const std = @import("std");
 
 pub fn build(b: *std.build.Builder) void {
+    // Standard target options allows the person running `zig build` to choose
+    // what target to build for. Here we do not override the defaults, which
+    // means any target is allowed, and the default is native. Other options
+    // for restricting supported target set are available.
     const target = b.standardTargetOptions(.{});
-    const mode = b.standardReleaseOptions();
+
+    // Standard optimization options allow the person running `zig build` to select
+    // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall. Here we do not
+    // set a preferred release mode, allowing the user to decide how to optimize.
+    const optimize = b.standardOptimizeOption(.{});
 
     // const config_h = b.addConfigHeader(.{ .path = "config.h.in" }, .autoconf, .{
     //     .MAGICKCORE_FILTER_DIRNAME = "filters",
     // });
-    const lib = b.addStaticLibrary("MagickWand", null);
-    lib.setTarget(target);
-    lib.setBuildMode(mode);
+    const lib = b.addStaticLibrary(
+        .{
+            .name = "MagickWand",
+            .target = target,
+            .optimize = optimize,
+        },
+    );
     lib.linkLibC();
     // lib.addConfigHeader(config_h);
     lib.addIncludePath(".");
@@ -278,10 +290,6 @@ pub fn build(b: *std.build.Builder) void {
     }, &.{});
     lib.install();
 
-    // Needs commit 37424fd (Zig 0.10 + 1329 commits)
-    // 1329 was broken though. 1350 (bbab4beda) seems to work
-    // NOTE: Would much rather have an "include extensions" option here
-    // than playing whack-a-mole
     lib.installHeadersDirectoryOptions(.{
         .source_dir = "MagickCore",
         .install_dir = .header,
